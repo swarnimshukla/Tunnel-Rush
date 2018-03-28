@@ -138,19 +138,27 @@ function initBuffers(gl) {
   //   -1.0,  1.0,  1.0,
   //   -1.0,  1.0, -1.0,
   // ];
-    var positions[];
+    var positions= [];
     var n=8, i, index=0;
     var p = 3.14159, angle = 0, theta=(2*p)/n;
-    for(i=0; i<8 ;++i){
-        positions[index++]= 3.Math.cos(angle);
-        positions[index++]= 3.Math.sin(angle); 
+    for(i=0; i<n ;++i){
+        positions[index++]= 3*Math.cos(angle);
+        positions[index++]= 3*Math.sin(angle); 
         positions[index++]= -3;
-        positions[index++]= 3.Math.cos(angle);
-        positions[index++]= 3.Math.sin(angle); 
+        positions[index++]= 3*Math.cos(angle);
+        positions[index++]= 3*Math.sin(angle); 
         positions[index++]= -6;
         angle+=theta;
+        positions[index++]= 3*Math.cos(angle);
+        positions[index++]= 3*Math.sin(angle); 
+        positions[index++]= -3;
+        positions[index++]= 3*Math.cos(angle);
+        positions[index++]= 3*Math.sin(angle); 
+        positions[index++]= -6;
+        // angle+=theta;
+
       }
-    }
+      console.log(positions);
   // Now pass the list of positions into WebGL to build the
   // shape. We do this by creating a Float32Array from the
   // JavaScript array, then use it to fill the current buffer.
@@ -167,6 +175,9 @@ function initBuffers(gl) {
     [0.0,  0.0,  1.0,  1.0],    // Bottom face: blue
     [1.0,  1.0,  0.0,  1.0],    // Right face: yellow
     [1.0,  0.0,  1.0,  1.0],    // Left face: purple
+    [1.0,  0.0,  1.0,  1.0],    // Left face: purple
+    [1.0,  0.0,  1.0,  1.0],    // Left face: purple
+
   ];
 
   // Convert the array of colors into a table for all the vertices.
@@ -195,12 +206,15 @@ function initBuffers(gl) {
   // position.
 
   const indices = [
-    0,  1,  2,      0,  2,  3,    // front
-    4,  5,  6,      4,  6,  7,    // back
-    8,  9,  10,     8,  10, 11,   // top
-    12, 13, 14,     12, 14, 15,   // bottom
-    16, 17, 18,     16, 18, 19,   // right
-    20, 21, 22,     20, 22, 23,   // left
+    0,  1,  2,      1,  2,  3,    // front
+    4,  5,  6,      5,  6,  7,    // back
+    8,  9,  10,     9,  10, 11,   // top
+    12, 13, 14,     13, 14, 15,   // bottom
+    16, 17, 18,     17, 18, 19,   // right
+    20, 21, 22,     21, 22, 23,   // left
+    24, 25, 26,     25, 26, 27,   // left
+    28, 29, 30,     29, 30, 31,   // left
+
   ];
 
   // Now send the element array to GL
@@ -327,7 +341,7 @@ function drawScene(gl, programInfo, buffers, deltaTime) {
       modelViewMatrix);
 
   {
-    const vertexCount = 36;
+    const vertexCount = 48;
     const type = gl.UNSIGNED_SHORT;
     const offset = 0;
     gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
@@ -335,7 +349,7 @@ function drawScene(gl, programInfo, buffers, deltaTime) {
 
   // Update the rotation for the next draw
 
-  cubeRotation += deltaTime;
+  // cubeRotation += deltaTime;
 }
 
 //
