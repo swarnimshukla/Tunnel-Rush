@@ -3,7 +3,6 @@
 //
 // Initialize the buffers we'll need. For this demo, we just
 // have one object -- a simple three-dimensional cube.
-//
 function initObstaclesBuffers(gl) {
 
   // Create a buffer for the cube's vertex positions.
@@ -17,12 +16,27 @@ function initObstaclesBuffers(gl) {
 
   // Now create an array of positions for the cube.
    
-      var positions= [
-        0.6, 4.0, 0.0,
-        -0.6, 4.0, 0.0,
-        0.6, -4.0, 0.0,
-        -0.6, -4.0, 0.0,
-      ];
+      var positions= [];
+
+      var n=8,ran, i, index=0;
+      var p = 3.14159, angle = 0, theta=(2*p)/n;
+      positions[index++]= 4*Math.cos(angle);
+      positions[index++]= 4*Math.sin(angle); 
+      positions[index++]= 0;
+      angle+=theta;
+      positions[index++]= 4*Math.cos(angle);
+      positions[index++]= 4*Math.sin(angle); 
+      positions[index++]= 0;
+      angle+=theta;
+      angle+=theta;
+      angle+=theta;
+      positions[index++]= 4*Math.cos(angle);
+      positions[index++]= 4*Math.sin(angle); 
+      positions[index++]= 0;
+      angle+=theta;
+      positions[index++]= 4*Math.cos(angle);
+      positions[index++]= 4*Math.sin(angle); 
+      positions[index++]= 0;
       
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
     
@@ -71,7 +85,7 @@ function initObstaclesBuffers(gl) {
       // position.
       
       const indices = [
-        0,  1,  2,      1,  2,  3,    // front
+        0,  1,  2,      0,  2,  3,    // front
       ];
   
       // Now send the element array to GL
@@ -122,20 +136,20 @@ function drawObstaclesScene(gl, programInfo, buffers1, deltaTime) {
 
   // Set the drawing position to the "identity" point, which is
   // the center of the scene.
-  var loop1
+  var loop1,cou=0;
   for(loop1 =1; loop1 < 1000;loop1++){
-    if(loop1%8==0){
-      const modelViewMatrix = mat4.create();
+    // var randomnumber = Math.floor(Math.random() * (7 - 0 + 1)) + 0;
     
+    if(loop1%18==0){
+        const modelViewMatrix = mat4.create();
           // Now move the drawing position a bit to where we want to
           // start drawing the square.
-    
           mat4.translate(modelViewMatrix,     // destination matrix
                          modelViewMatrix,     // matrix to translate
-                         [-0.0, 2.5, -4.0*loop1+150+obstacle_translation]);  // amount to translate
+                         [-0.0, 2.5 - posiY, -4.0*loop1+150+obstacle_translation]);  // amount to translate
           mat4.rotate(modelViewMatrix,  // destination matrix
                       modelViewMatrix,  // matrix to rotate
-                      rotation,     // amount to rotate in radians
+                      rot,     // amount to rotate in radians
                       [0, 0, 1]);       // axis to rotate around (Z)
           
           // Tell WebGL how to pull out the positions from the position
@@ -206,6 +220,6 @@ function drawObstaclesScene(gl, programInfo, buffers1, deltaTime) {
   
     //   Update the rotation for the next draw
   
-  //   cubeRotation += deltaTime;
+    rot += (deltaTime*0.002);
   }
 }

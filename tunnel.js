@@ -44,7 +44,6 @@ function initBuffers(gl) {
 
   // Now set up the colors for the faces. We'll use solid colors
   // for each face.
-    console.log("Done");
     const faceColors = [
         [1.0,  1.0,  1.0,  1.0],    // Front face: white
         [1.0,  0.0,  0.0,  1.0],    // Back face: red
