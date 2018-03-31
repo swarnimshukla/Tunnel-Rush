@@ -5,10 +5,10 @@ var posiY=0;
 var flag=0;
 var obstacle_translation=0;
 var obstacle_rotation=0.0;
-var rot=0;
+var rot=0, rotat=0;
 const canvas = document.querySelector('#glcanvas');
 const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-
+var collision1[]
 
 main();
 
@@ -75,6 +75,7 @@ function main() {
   // objects we'll be drawing.
   const buffers = initBuffers(gl);
   const buffers1 = initObstaclesBuffers(gl);
+  const buffers2 = initObstaclesStationaryBuffers(gl);
 
   var then = 0;
 
@@ -86,6 +87,7 @@ function main() {
 
     drawScene(gl, programInfo, buffers, deltaTime);
     drawObstaclesScene(gl, programInfo, buffers1, deltaTime);
+    drawObstaclesStationaryScene(gl, programInfo, buffers2, deltaTime);
 
     requestAnimationFrame(render);
     translation +=0.3;
@@ -93,8 +95,12 @@ function main() {
     // rotation -= 0.02;
     Mousetrap.bind('a', function() { 
       rotation+=0.09;
+      rotat-=0.05;
        });
-    Mousetrap.bind('d', function() { rotation-=0.09; });
+    Mousetrap.bind('d', function() { 
+      rotation-=0.09;
+      rotat+=0.05;
+       });
     Mousetrap.bind('space', function() {
            flag=1;
        });
@@ -108,6 +114,7 @@ function main() {
       speed=0.4;
      }
     }
+
   }
   requestAnimationFrame(render);
 }

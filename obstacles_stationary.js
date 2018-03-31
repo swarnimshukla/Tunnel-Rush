@@ -3,7 +3,7 @@
 //
 // Initialize the buffers we'll need. For this demo, we just
 // have one object -- a simple three-dimensional cube.
-function initObstaclesBuffers(gl) {
+function initObstaclesStationaryBuffers(gl) {
 
   // Create a buffer for the cube's vertex positions.
 
@@ -19,7 +19,7 @@ function initObstaclesBuffers(gl) {
       var positions= [];
 
       var n=8,ran, i, index=0;
-      var p = 3.14159, angle = 0, theta=(2*p)/n;
+      var p = 3.14159, angle = p/4, theta=(2*p)/n;
       positions[index++]= 4*Math.cos(angle);
       positions[index++]= 4*Math.sin(angle); 
       positions[index++]= 0;
@@ -49,8 +49,8 @@ function initObstaclesBuffers(gl) {
   // for each face.
     const faceColors = [
         // [1.0,  1.0,  1.0,  1.0],    // Front face: white
-        [1.0,  0.0,  0.0,  1.0],    // Back face: red
-        // [0.0,  1.0,  0.0,  1.0],    // Top face: green
+        // [1.0,  0.0,  0.0,  1.0],    // Back face: red
+        [0.0,  1.0,  0.0,  1.0],    // Top face: green
         // [0.0,  0.0,  1.0,  1.0],    // Bottom face: blue
         // [1.0,  1.0,  0.0,  1.0],    // Right face: yellow
         // [1.0,  0.5,  0.0,  1.0],    // Left face: purple
@@ -79,7 +79,7 @@ function initObstaclesBuffers(gl) {
   
       const indexBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-  
+
       // This array defines each face as two triangles, using the
       // indices into the vertex array to specify each triangle's
       // position.
@@ -103,7 +103,7 @@ function initObstaclesBuffers(gl) {
 //
 // Draw the scene.
 //
-function drawObstaclesScene(gl, programInfo, buffers1, deltaTime) {
+function drawObstaclesStationaryScene(gl, programInfo, buffers2, deltaTime) {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -134,29 +134,31 @@ function drawObstaclesScene(gl, programInfo, buffers1, deltaTime) {
                    zNear,
                    zFar);
 
+
   // Set the drawing position to the "identity" point, which is
   // the center of the scene.
-  var loop1,cou=0;
-  for(loop1 =1; loop1 < 1000;loop1++){
+  var loop2,cou=0;
+  for(loop2 =1; loop2 < 1000;loop2++){
     // var randomnumber = Math.floor(Math.random() * (7 - 0 + 1)) + 0;
     
-    if(loop1%18==0){
+    if(loop2%77==0){
         const modelViewMatrix = mat4.create();
           // Now move the drawing position a bit to where we want to
           // start drawing the square.
           mat4.translate(modelViewMatrix,     // destination matrix
                          modelViewMatrix,     // matrix to translate
-                         [-0.0, 2.5 - posiY, -4.0*loop1+150+obstacle_translation]);  // amount to translate
+                         [-0.0, 2.5 - posiY, -4.0*loop2+150+obstacle_translation]);  // amount to translate
           mat4.rotate(modelViewMatrix,  // destination matrix
                       modelViewMatrix,  // matrix to rotate
-                      rot,     // amount to rotate in radians
+                      rotat,     // amount to rotate in radians
                       [0, 0, 1]);       // axis to rotate around (Z)
           
           // Tell WebGL how to pull out the positions from the position
           // buffer into the vertexPosition attribute
-           gl.useProgram(programInfo.program);
-    
+
+
           // Set the shader uniforms
+           gl.useProgram(programInfo.program);
     
           gl.uniformMatrix4fv(
               programInfo.uniformLocations.projectionMatrix,
@@ -166,13 +168,14 @@ function drawObstaclesScene(gl, programInfo, buffers1, deltaTime) {
               programInfo.uniformLocations.modelViewMatrix,
               false,
               modelViewMatrix);
+    
           {
             const numComponents = 3;
             const type = gl.FLOAT;
             const normalize = false;
             const stride = 0;
             const offset = 0;
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffers1.position);
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffers2.position);
             gl.vertexAttribPointer(
                 programInfo.attribLocations.vertexPosition,
                 numComponents,
@@ -192,7 +195,7 @@ function drawObstaclesScene(gl, programInfo, buffers1, deltaTime) {
             const normalize = false;
             const stride = 0;
             const offset = 0;
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffers1.color);
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffers2.color);
             gl.vertexAttribPointer(
                 programInfo.attribLocations.vertexColor,
                 numComponents,
@@ -205,12 +208,11 @@ function drawObstaclesScene(gl, programInfo, buffers1, deltaTime) {
           }
     
           // Tell WebGL which indices to use to index the vertices
-          gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers1.indices);
+          gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers2.indices);
     
           // Tell WebGL to use our program when drawing
     
          
-    
           {
             const vertexCount = 6;
             const type = gl.UNSIGNED_SHORT;
@@ -221,6 +223,6 @@ function drawObstaclesScene(gl, programInfo, buffers1, deltaTime) {
   
     //   Update the rotation for the next draw
   
-    rot += (deltaTime*0.002);
+    // rot += (deltaTime*0.002);
   }
 }

@@ -158,6 +158,18 @@ function drawScene(gl,programInfo, buffers, deltaTime) {
       
       // Tell WebGL how to pull out the positions from the position
       // buffer into the vertexPosition attribute
+       gl.useProgram(programInfo.program);
+  
+      // Set the shader uniforms
+  
+      gl.uniformMatrix4fv(
+          programInfo.uniformLocations.projectionMatrix,
+          false,
+          projectionMatrix);
+      gl.uniformMatrix4fv(
+          programInfo.uniformLocations.modelViewMatrix,
+          false,
+          modelViewMatrix);
       {
         const numComponents = 3;
         const type = gl.FLOAT;
@@ -201,18 +213,7 @@ function drawScene(gl,programInfo, buffers, deltaTime) {
   
       // Tell WebGL to use our program when drawing
   
-      gl.useProgram(programInfo.program);
-  
-      // Set the shader uniforms
-  
-      gl.uniformMatrix4fv(
-          programInfo.uniformLocations.projectionMatrix,
-          false,
-          projectionMatrix);
-      gl.uniformMatrix4fv(
-          programInfo.uniformLocations.modelViewMatrix,
-          false,
-          modelViewMatrix);
+     
   
       {
         const vertexCount = 48;
