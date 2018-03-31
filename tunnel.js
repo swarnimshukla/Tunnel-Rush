@@ -98,17 +98,67 @@ function initBuffers(gl) {
       gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
           new Uint16Array(indices), gl.STATIC_DRAW);
   
+  const textureCoordBuffer =  gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
+
+  const textureCoordinates = [
+    // Front
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Back
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Top
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Bottom
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Right
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Left
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Bottom
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Bottom
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+  ];
+
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates),
+                gl.STATIC_DRAW);
+
     return {
       position: positionBuffer,
       color: colorBuffer,
       indices: indexBuffer,
+      texture: textureCoordBuffer,
     };
 }
 
 //
 // Draw the scene.
 //
-function drawScene(gl,programInfo, buffers, deltaTime) {
+function drawScene(gl,programInfo, buffers, deltaTime, texture) {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -211,10 +261,28 @@ function drawScene(gl,programInfo, buffers, deltaTime) {
       // Tell WebGL which indices to use to index the vertices
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
   
-      // Tell WebGL to use our program when drawing
-  
-     
-  
+
+      {
+          const num = 2; // every coordinate composed of 2 values
+          const type = gl.FLOAT; // the data in the buffer is 32 bit float
+          const normalize = false; // don't normalize
+          const stride = 0; // how many bytes to get from one set to the next
+          const offset = 0; // how many bytes inside the buffer to start from
+          gl.bindBuffer(gl.ARRAY_BUFFER, buffers.texture);
+          gl.vertexAttribPointer(programInfo.attribLocations.vertexTexture, num, type, normalize, stride, offset);
+          gl.enableVertexAttribArray(programInfo.attribLocations.vertexTexture);
+      }
+
+            // Tell WebGL to use our program when drawing
+        
+          gl.activeTexture(gl.TEXTURE0);
+
+        // Bind the texture to texture unit 0
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+
+        // Tell the shader we bound the texture to texture unit 0
+        gl.uniform1i(programInfo.uniformLocations.sampler, 0); 
+        
       {
         const vertexCount = 48;
         const type = gl.UNSIGNED_SHORT;

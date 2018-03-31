@@ -30,15 +30,18 @@ function main() {
   const vsSource = `
     attribute vec4 aVertexPosition;
     attribute vec4 aVertexColor;
+    attribute vec2 aVCoord;
 
     uniform mat4 uModelViewMatrix;
     uniform mat4 uProjectionMatrix;
 
     varying lowp vec4 vColor;
+    varying highp vec2 vTexCoord;
 
     void main(void) {
       gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
       vColor = aVertexColor;
+      vTexCoord = aVCoord;
     }
   `;
 
@@ -46,9 +49,13 @@ function main() {
 
   const fsSource = `
     varying lowp vec4 vColor;
+    varying highp vec2 vTexCoord;
+
+    uniform sampler2D uSampler;
 
     void main(void) {
-      gl_FragColor = vColor;
+      // gl_FragColor = vColor;
+      gl_FragColor = texture2D(uSampler, vTexCoord);
     }
   `;
 
@@ -65,10 +72,12 @@ function main() {
     attribLocations: {
       vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
       vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor'),
+      vertexTexture: gl.getAttribLocation(shaderProgram, 'aVCoord'),
     },
     uniformLocations: {
       projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
       modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+      sampler: gl.getUniformLocation(shaderProgram, 'uSampler'),
     },
   };
 
@@ -79,6 +88,7 @@ function main() {
   const buffers2 = initObstaclesStationaryBuffers(gl);
 
   var then = 0;
+  texture = loadTexture(gl, './tunnel.jpg');
 
   // Draw the scene repeatedly
   function render(now) {
@@ -86,9 +96,10 @@ function main() {
     const deltaTime = now - then;
     then = now;
 
-    drawScene(gl, programInfo, buffers, deltaTime);
-    drawObstaclesScene(gl, programInfo, buffers1, deltaTime);
-    drawObstaclesStationaryScene(gl, programInfo, buffers2, deltaTime);
+
+    drawScene(gl, programInfo, buffers, deltaTime, texture);
+    // drawObstaclesScene(gl, programInfo, buffers1, deltaTime);
+    // drawObstaclesStationaryScene(gl, programInfo, buffers2, deltaTime);
 
     requestAnimationFrame(render);
     translation +=0.3;
@@ -176,3 +187,38 @@ function loadShader(gl, type, source) {
   return shader;
 }
 
+function loadTexture(gl, url) {
+  const texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  const level = 0;
+  const internalFormat = gl.RGBA;
+  const width = 1;
+  const height = 1;
+  const border = 0;
+  const srcFormat = gl.RGBA;
+  const srcType = gl.UNSIGNED_BYTE;
+  const pixel = new Uint8Array([10, 20, 255, 220]);
+  gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+                width, height, border, srcFormat, srcType,
+                pixel);
+
+  const image = new Image();
+  image.onload = function() {
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+                  srcFormat, srcType, image);
+    if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+       gl.generateMipmap(gl.TEXTURE_2D);
+    } else {
+       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    }
+  };
+  image.src = url;
+  return texture;
+}
+
+function isPowerOf2(value) {
+  return (value & (value - 1)) == 0;
+}
