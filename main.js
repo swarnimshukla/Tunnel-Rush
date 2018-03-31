@@ -8,7 +8,8 @@ var obstacle_rotation=0.0;
 var rot=0, rotat=0;
 const canvas = document.querySelector('#glcanvas');
 const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-var collision1[]
+var a= [], collision1_index=0;
+var collision2= [];
 
 main();
 
@@ -114,7 +115,12 @@ function main() {
       speed=0.4;
      }
     }
-
+    for(i=0;i<1000;i++)
+      if(a[i]>-2 && a[i]<0){
+        if(Math.cos(rot)<0.7071 && Math.cos(rot)>-0.7071)
+          console.log("Collision");
+      }
+    // console.log(rot);     
   }
   requestAnimationFrame(render);
 }

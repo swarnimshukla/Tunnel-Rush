@@ -155,7 +155,7 @@ function drawScene(gl,programInfo, buffers, deltaTime) {
                   modelViewMatrix,  // matrix to rotate
                   rotation,     // amount to rotate in radians
                   [0, 0, 1]);       // axis to rotate around (Z)
-      
+      // console.log(a);
       // Tell WebGL how to pull out the positions from the position
       // buffer into the vertexPosition attribute
        gl.useProgram(programInfo.program);

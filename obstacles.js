@@ -140,18 +140,24 @@ function drawObstaclesScene(gl, programInfo, buffers1, deltaTime) {
   for(loop1 =1; loop1 < 1000;loop1++){
     // var randomnumber = Math.floor(Math.random() * (7 - 0 + 1)) + 0;
     
-    if(loop1%18==0){
+    
         const modelViewMatrix = mat4.create();
           // Now move the drawing position a bit to where we want to
           // start drawing the square.
           mat4.translate(modelViewMatrix,     // destination matrix
                          modelViewMatrix,     // matrix to translate
-                         [-0.0, 2.5 - posiY, -4.0*loop1+150+obstacle_translation]);  // amount to translate
+                         [-0.0, 2.5 - posiY, -60*loop1+obstacle_translation]);  // amount to translate
           mat4.rotate(modelViewMatrix,  // destination matrix
                       modelViewMatrix,  // matrix to rotate
                       rot,     // amount to rotate in radians
                       [0, 0, 1]);       // axis to rotate around (Z)
-          
+              // var a=-4*loop1+10;
+            a[loop1]=-60*loop1+obstacle_translation;
+              // console.log("Yo");
+              // console.log(a);
+              // console.log(loop1);
+              
+            // console.log(obstacle_translation + a);
           // Tell WebGL how to pull out the positions from the position
           // buffer into the vertexPosition attribute
            gl.useProgram(programInfo.program);
@@ -208,8 +214,7 @@ function drawObstaclesScene(gl, programInfo, buffers1, deltaTime) {
           gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers1.indices);
     
           // Tell WebGL to use our program when drawing
-    
-         
+          
     
           {
             const vertexCount = 6;
@@ -217,7 +222,6 @@ function drawObstaclesScene(gl, programInfo, buffers1, deltaTime) {
             const offset = 0;
             gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
         }
-    } 
   
     //   Update the rotation for the next draw
   

@@ -147,15 +147,23 @@ function drawObstaclesStationaryScene(gl, programInfo, buffers2, deltaTime) {
           // start drawing the square.
           mat4.translate(modelViewMatrix,     // destination matrix
                          modelViewMatrix,     // matrix to translate
-                         [-0.0, 2.5 - posiY, -4.0*loop2+150+obstacle_translation]);  // amount to translate
+                         [-0.0, 2.5 - posiY, -4.0*loop2+10+obstacle_translation]);  // amount to translate
           mat4.rotate(modelViewMatrix,  // destination matrix
                       modelViewMatrix,  // matrix to rotate
                       rotat,     // amount to rotate in radians
                       [0, 0, 1]);       // axis to rotate around (Z)
-          
+          if(loop2==77){
+            // console.log("start");
+            // console.log(-4.0*loop2+100+obstacle_translation);
+          }
+          if(loop2==78){
+            console.log("Done");
+            break;
+          }
           // Tell WebGL how to pull out the positions from the position
           // buffer into the vertexPosition attribute
-
+          var pos=-4.0*loop2+150+obstacle_translation;
+          // console.log(pos);
 
           // Set the shader uniforms
            gl.useProgram(programInfo.program);
