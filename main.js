@@ -13,6 +13,7 @@ var a= [], collision1_index=0;
 var b= [];
 var score=0;
 var mode=0;
+var level=1;
 // var s = Document.getElementbyId('s');
 // s.innerHTML=score;
 
@@ -175,9 +176,22 @@ function main() {
 
     
     requestAnimationFrame(render);
-    translation +=0.3;
-    obstacle_translation+=0.3;
-    obstacle_translation1+=0.3;
+    if(level==1){
+      translation +=0.3;
+      obstacle_translation+=0.3;
+      obstacle_translation1+=0.3;
+    }
+    if(level==2){
+     translation +=0.5;
+      obstacle_translation+=0.5;
+      obstacle_translation1+=0.5; 
+    }
+     if(level==3){
+     translation +=0.8;
+      obstacle_translation+=0.8;
+      obstacle_translation1+=0.8; 
+    }
+
 
     // rotation -= 0.02;
     Mousetrap.bind('a', function() { 
@@ -203,14 +217,18 @@ function main() {
     }
     for(i=0;i<1000;i++)
       if(a[i]>-2 && a[i]<0){
-        if(Math.cos(rot)<0.7071 && Math.cos(rot)>-0.7071)
+        if(Math.cos(rot)<0.7071 && Math.cos(rot)>-0.7071){
           console.log("Collision");
+        alert("Game Over");
+        }
       }
 
     for(i=0;i<1000;i++)
       if(b[i]>-2 && b[i]<0){
-        if(Math.cos(rotat)>0.7071 && Math.cos(rotat)>-0.7071 || Math.cos(rotat)<0.7071 && Math.cos(rotat)>-0.7071 )
+        if(Math.cos(rotat)>0.7071 && Math.cos(rotat)>-0.7071 ){
           console.log("Collision1");
+          alert("Game over");
+        }
       }
     Mousetrap.bind('w', function() {
            if(mode==0){
@@ -221,7 +239,22 @@ function main() {
            }
 
        });
+    var str="Score:";
+    score++;
+    str = str + score;
+    document.getElementById("s").innerHTML = str;
 
+    var string="Level:";
+    string = string + level;
+    document.getElementById("l").innerHTML = string;
+
+
+    if(score==650){
+      level=2;
+    }
+    if(score==1250){
+      level=3;
+    }
   }
   requestAnimationFrame(render);
 }
