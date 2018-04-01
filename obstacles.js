@@ -92,18 +92,66 @@ function initObstaclesBuffers(gl) {
   
       gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
           new Uint16Array(indices), gl.STATIC_DRAW);
-  
+   const textureCoordBuffer =  gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
+
+  const textureCoordinates1 = [
+    // Front
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Back
+    // 0.0,  0.0,
+    // 1.0,  0.0,
+    // 1.0,  1.0,
+    // 0.0,  1.0,
+    // // Top
+    // 0.0,  0.0,
+    // 1.0,  0.0,
+    // 1.0,  1.0,
+    // 0.0,  1.0,
+    // // Bottom
+    // 0.0,  0.0,
+    // 1.0,  0.0,
+    // 1.0,  1.0,
+    // 0.0,  1.0,
+    // // Right
+    // 0.0,  0.0,
+    // 1.0,  0.0,
+    // 1.0,  1.0,
+    // 0.0,  1.0,
+    // // Left
+    // 0.0,  0.0,
+    // 1.0,  0.0,
+    // 1.0,  1.0,
+    // 0.0,  1.0,
+    // // Bottom
+    // 0.0,  0.0,
+    // 1.0,  0.0,
+    // 1.0,  1.0,
+    // 0.0,  1.0,
+    // // Bottom
+    // 0.0,  0.0,
+    // 1.0,  0.0,
+    // 1.0,  1.0,
+    // 0.0,  1.0,
+  ];
+
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates1),
+                gl.STATIC_DRAW);
     return {
       position: positionBuffer,
       color: colorBuffer,
       indices: indexBuffer,
+      texture:textureCoordBuffer,
     };
 }
 
 //
 // Draw the scene.
 //
-function drawObstaclesScene(gl, programInfo, buffers1, deltaTime) {
+function drawObstaclesScene(gl, programInfo, buffers1, deltaTime, texture1) {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -153,6 +201,7 @@ function drawObstaclesScene(gl, programInfo, buffers1, deltaTime) {
                       [0, 0, 1]);       // axis to rotate around (Z)
               // var a=-4*loop1+10;
             a[loop1]=-60*loop1+obstacle_translation;
+            
               // console.log("Yo");
               // console.log(a);
               // console.log(loop1);
@@ -214,7 +263,27 @@ function drawObstaclesScene(gl, programInfo, buffers1, deltaTime) {
           gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers1.indices);
     
           // Tell WebGL to use our program when drawing
-          
+          {
+          const num = 2; // every coordinate composed of 2 values
+          const type = gl.FLOAT; // the data in the buffer is 32 bit float
+          const normalize = false; // don't normalize
+          const stride = 0; // how many bytes to get from one set to the next
+          const offset = 0; // how many bytes inside the buffer to start from
+          gl.bindBuffer(gl.ARRAY_BUFFER, buffers1.texture);
+          gl.vertexAttribPointer(programInfo.attribLocations.vertexTexture, num, type, normalize, stride, offset);
+          gl.enableVertexAttribArray(programInfo.attribLocations.vertexTexture);
+      }
+
+            // Tell WebGL to use our program when drawing
+        
+        gl.activeTexture(gl.TEXTURE0);
+
+        // Bind the texture to texture unit 0
+        gl.bindTexture(gl.TEXTURE_2D, texture1);
+
+        // Tell the shader we bound the texture to texture unit 0
+        gl.uniform1i(programInfo.uniformLocations.sampler, 0); 
+              
     
           {
             const vertexCount = 6;

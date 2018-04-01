@@ -4,12 +4,16 @@ var speed=0.4,gravity;
 var posiY=0;
 var flag=0;
 var obstacle_translation=0;
+var obstacle_translation1=0;
 var obstacle_rotation=0.0;
 var rot=0, rotat=0;
 const canvas = document.querySelector('#glcanvas');
 const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 var a= [], collision1_index=0;
-var collision2= [];
+var b= [];
+var score=0;
+// var s = Document.getElementbyId('s');
+// s.innerHTML=score;
 
 main();
 
@@ -89,29 +93,34 @@ function main() {
 
   var then = 0;
   texture = loadTexture(gl, './tunnel.jpg');
+  texture1 = loadTexture(gl, './block.jpg');
+  texture2 = loadTexture(gl, './block1.jpg');
 
   // Draw the scene repeatedly
   function render(now) {
     now *= 0.001;  // convert to seconds
     const deltaTime = now - then;
     then = now;
+    score++;
 
 
     drawScene(gl, programInfo, buffers, deltaTime, texture);
-    // drawObstaclesScene(gl, programInfo, buffers1, deltaTime);
-    // drawObstaclesStationaryScene(gl, programInfo, buffers2, deltaTime);
+    drawObstaclesScene(gl, programInfo, buffers1, deltaTime, texture1);
+    drawObstaclesStationaryScene(gl, programInfo, buffers2, deltaTime,texture2);
 
     requestAnimationFrame(render);
     translation +=0.3;
     obstacle_translation+=0.3;
+    obstacle_translation1+=0.3;
+
     // rotation -= 0.02;
     Mousetrap.bind('a', function() { 
       rotation+=0.09;
-      rotat-=0.05;
+      rotat+=0.05;
        });
     Mousetrap.bind('d', function() { 
       rotation-=0.09;
-      rotat+=0.05;
+      rotat-=0.05;
        });
     Mousetrap.bind('space', function() {
            flag=1;
@@ -131,7 +140,14 @@ function main() {
         if(Math.cos(rot)<0.7071 && Math.cos(rot)>-0.7071)
           console.log("Collision");
       }
-    // console.log(rot);     
+
+    for(i=0;i<1000;i++)
+      if(b[i]>-2 && b[i]<0){
+        if(Math.cos(rotat)>0.7071 && Math.cos(rotat)>-0.7071 || Math.cos(rotat)<0.7071 && Math.cos(rotat)>-0.7071 )
+          console.log("Collision1");
+      }
+    
+
   }
   requestAnimationFrame(render);
 }

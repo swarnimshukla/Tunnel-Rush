@@ -92,18 +92,66 @@ function initObstaclesStationaryBuffers(gl) {
   
       gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
           new Uint16Array(indices), gl.STATIC_DRAW);
+      const textureCoordBuffer =  gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
+
+       const textureCoordinates2 = [
+    // Front
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Back
+    // 0.0,  0.0,
+    // 1.0,  0.0,
+    // 1.0,  1.0,
+    // 0.0,  1.0,
+    // // Top
+    // 0.0,  0.0,
+    // 1.0,  0.0,
+    // 1.0,  1.0,
+    // 0.0,  1.0,
+    // // Bottom
+    // 0.0,  0.0,
+    // 1.0,  0.0,
+    // 1.0,  1.0,
+    // 0.0,  1.0,
+    // // Right
+    // 0.0,  0.0,
+    // 1.0,  0.0,
+    // 1.0,  1.0,
+    // 0.0,  1.0,
+    // // Left
+    // 0.0,  0.0,
+    // 1.0,  0.0,
+    // 1.0,  1.0,
+    // 0.0,  1.0,
+    // // Bottom
+    // 0.0,  0.0,
+    // 1.0,  0.0,
+    // 1.0,  1.0,
+    // 0.0,  1.0,
+    // // Bottom
+    // 0.0,  0.0,
+    // 1.0,  0.0,
+    // 1.0,  1.0,
+    // 0.0,  1.0,
+  ];
+   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates2),
+                gl.STATIC_DRAW);
   
     return {
       position: positionBuffer,
       color: colorBuffer,
       indices: indexBuffer,
+      texture: textureCoordBuffer,
     };
 }
 
 //
 // Draw the scene.
 //
-function drawObstaclesStationaryScene(gl, programInfo, buffers2, deltaTime) {
+function drawObstaclesStationaryScene(gl, programInfo, buffers2, deltaTime, texture2) {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -147,23 +195,17 @@ function drawObstaclesStationaryScene(gl, programInfo, buffers2, deltaTime) {
           // start drawing the square.
           mat4.translate(modelViewMatrix,     // destination matrix
                          modelViewMatrix,     // matrix to translate
-                         [-0.0, 2.5 - posiY, -4.0*loop2+10+obstacle_translation]);  // amount to translate
+                         [-0.0, 2.5 - posiY, -1.0*loop2+obstacle_translation1]);  // amount to translate
           mat4.rotate(modelViewMatrix,  // destination matrix
                       modelViewMatrix,  // matrix to rotate
                       rotat,     // amount to rotate in radians
                       [0, 0, 1]);       // axis to rotate around (Z)
-          if(loop2==77){
-            // console.log("start");
-            // console.log(-4.0*loop2+100+obstacle_translation);
-          }
-          if(loop2==78){
-            console.log("Done");
-            break;
-          }
+          b[loop2]=-1.0*loop2+obstacle_translation1;         
           // Tell WebGL how to pull out the positions from the position
+          
           // buffer into the vertexPosition attribute
-          var pos=-4.0*loop2+150+obstacle_translation;
-          // console.log(pos);
+          // var c=b[1];
+          // console.log(c);
 
           // Set the shader uniforms
            gl.useProgram(programInfo.program);
@@ -219,7 +261,26 @@ function drawObstaclesStationaryScene(gl, programInfo, buffers2, deltaTime) {
           gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers2.indices);
     
           // Tell WebGL to use our program when drawing
-    
+          { const num = 2; // every coordinate composed of 2 values
+          const type = gl.FLOAT; // the data in the buffer is 32 bit float
+          const normalize = false; // don't normalize
+          const stride = 0; // how many bytes to get from one set to the next
+          const offset = 0; // how many bytes inside the buffer to start from
+          gl.bindBuffer(gl.ARRAY_BUFFER, buffers2.texture);
+          gl.vertexAttribPointer(programInfo.attribLocations.vertexTexture, num, type, normalize, stride, offset);
+          gl.enableVertexAttribArray(programInfo.attribLocations.vertexTexture);
+      }
+
+            // Tell WebGL to use our program when drawing
+        
+        gl.activeTexture(gl.TEXTURE0);
+
+        // Bind the texture to texture unit 0
+        gl.bindTexture(gl.TEXTURE_2D, texture2);
+
+        // Tell the shader we bound the texture to texture unit 0
+        gl.uniform1i(programInfo.uniformLocations.sampler, 0); 
+              
          
           {
             const vertexCount = 6;
