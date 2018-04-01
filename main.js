@@ -12,6 +12,7 @@ const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
 var a= [], collision1_index=0;
 var b= [];
 var score=0;
+var mode=0;
 // var s = Document.getElementbyId('s');
 // s.innerHTML=score;
 
@@ -35,17 +36,28 @@ function main() {
     attribute vec4 aVertexPosition;
     attribute vec4 aVertexColor;
     attribute vec2 aVCoord;
+    attribute vec3 aVertexNormal;
 
+    uniform mat4 uNormalMatrix;
     uniform mat4 uModelViewMatrix;
     uniform mat4 uProjectionMatrix;
 
     varying lowp vec4 vColor;
     varying highp vec2 vTexCoord;
+    varying highp vec3 vLighting;
 
     void main(void) {
       gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
       vColor = aVertexColor;
       vTexCoord = aVCoord;
+
+      highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
+      highp vec3 directionalLightColor = vec3(1, 1, 1);
+      highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
+
+       highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
+       highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
+      vLighting = ambientLight + (directionalLightColor * directional);
     }
   `;
 
@@ -54,18 +66,39 @@ function main() {
   const fsSource = `
     varying lowp vec4 vColor;
     varying highp vec2 vTexCoord;
+    varying highp vec3 vLighting;
 
     uniform sampler2D uSampler;
 
     void main(void) {
       // gl_FragColor = vColor;
       gl_FragColor = texture2D(uSampler, vTexCoord);
+
+      highp vec4 texelColor = texture2D(uSampler, vTexCoord);
+      gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
+
     }
   `;
+
+    const fsSourceGreyScale = `
+    #ifdef GL_ES
+    precision mediump float;
+    #endif
+    varying lowp vec4 vColor;
+
+    void main(void) {
+        float gray = (vColor.r + vColor.g + vColor.b) / 3.0;
+        vec3 grayscale = vec3(gray);
+
+        gl_FragColor = vec4(grayscale, vColor.a);
+    }
+  `;
+
 
   // Initialize a shader program; this is where all the lighting
   // for the vertices and so forth is established.
   const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+  const shaderGreyScaleProgram = initShaderProgram(gl, vsSource, fsSourceGreyScale);
 
   // Collect all the info needed to use the shader program.
   // Look up which attributes our shader program is using
@@ -77,13 +110,37 @@ function main() {
       vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
       vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor'),
       vertexTexture: gl.getAttribLocation(shaderProgram, 'aVCoord'),
+      vertexNormal: gl.getAttribLocation(shaderProgram, 'aVertexNormal'),
+
     },
     uniformLocations: {
       projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
       modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+      normalMatrix: gl.getUniformLocation(shaderProgram, 'uNormalMatrix'),
       sampler: gl.getUniformLocation(shaderProgram, 'uSampler'),
+
     },
   };
+
+  const programGreyscaleInfo = {
+    program: shaderGreyScaleProgram,
+    attribLocations: {
+      vertexPosition: gl.getAttribLocation(shaderGreyScaleProgram, 'aVertexPosition'),
+      vertexColor: gl.getAttribLocation(shaderGreyScaleProgram, 'aVertexColor'),
+      vertexTexture: gl.getAttribLocation(shaderGreyScaleProgram, 'aVCoord'),
+      vertexNormal: gl.getAttribLocation(shaderGreyScaleProgram, 'aVertexNormal'),
+
+    },
+    uniformLocations: {
+      projectionMatrix: gl.getUniformLocation(shaderGreyScaleProgram, 'uProjectionMatrix'),
+      modelViewMatrix: gl.getUniformLocation(shaderGreyScaleProgram, 'uModelViewMatrix'),
+      normalMatrix: gl.getUniformLocation(shaderGreyScaleProgram, 'uNormalMatrix'),
+      sampler: gl.getUniformLocation(shaderGreyScaleProgram, 'uSampler'),
+
+    },
+  };
+
+  
 
   // Here's where we call the routine that builds all the
   // objects we'll be drawing.
@@ -101,13 +158,22 @@ function main() {
     now *= 0.001;  // convert to seconds
     const deltaTime = now - then;
     then = now;
-    score++;
+    // score++;
 
+    if(mode==0){
+      drawScene(gl, programInfo, buffers, deltaTime, texture);
+      drawObstaclesScene(gl, programInfo, buffers1, deltaTime, texture1);
+      drawObstaclesStationaryScene(gl, programInfo, buffers2, deltaTime,texture2);
 
-    drawScene(gl, programInfo, buffers, deltaTime, texture);
-    drawObstaclesScene(gl, programInfo, buffers1, deltaTime, texture1);
-    drawObstaclesStationaryScene(gl, programInfo, buffers2, deltaTime,texture2);
+    }
+    else{
+      drawScene(gl,programGreyscaleInfo, buffers, deltaTime, texture);
+      drawObstaclesScene(gl, programGreyscaleInfo, buffers1, deltaTime, texture1);
+      drawObstaclesStationaryScene(gl, programGreyscaleInfo, buffers2, deltaTime,texture2);
 
+    }
+
+    
     requestAnimationFrame(render);
     translation +=0.3;
     obstacle_translation+=0.3;
@@ -146,7 +212,15 @@ function main() {
         if(Math.cos(rotat)>0.7071 && Math.cos(rotat)>-0.7071 || Math.cos(rotat)<0.7071 && Math.cos(rotat)>-0.7071 )
           console.log("Collision1");
       }
-    
+    Mousetrap.bind('w', function() {
+           if(mode==0){
+            mode=1;
+           }
+           else{
+            mode=0;
+           }
+
+       });
 
   }
   requestAnimationFrame(render);

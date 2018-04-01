@@ -147,10 +147,74 @@ function initBuffers(gl) {
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates),
                 gl.STATIC_DRAW);
 
+
+  const normalBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+
+  const vertexNormals = [
+    0.0,  1.0,  0.0,
+     0.0,  1.0,  0.0,
+     0.0,  1.0,  0.0,
+     0.0,  1.0,  0.0,
+
+     -1/(Math.sqrt(2)),  1/(Math.sqrt(2)),  0.0,
+     -1/(Math.sqrt(2)),  1/(Math.sqrt(2)),  0.0,
+     -1/(Math.sqrt(2)),  1/(Math.sqrt(2)),  0.0,
+     -1/(Math.sqrt(2)),  1/(Math.sqrt(2)),  0.0,
+
+     0.0,  -1.0, 0.0,
+     0.0,  -1.0, 0.0,
+     0.0,  -1.0, 0.0,
+     0.0,  -1.0, 0.0,
+
+     -1/(Math.sqrt(2)),  -1/(Math.sqrt(2)),  0.0,
+     -1/(Math.sqrt(2)),  -1/(Math.sqrt(2)),  0.0,
+     -1/(Math.sqrt(2)),  -1/(Math.sqrt(2)),  0.0,
+     -1/(Math.sqrt(2)),  -1/(Math.sqrt(2)),  0.0,
+
+1.0,  0.0,  0.0,
+     1.0,  0.0,  0.0,
+     1.0,  0.0,  0.0,
+     1.0,  0.0,  0.0,
+        1/(Math.sqrt(2)),  1/(Math.sqrt(2)),  0.0,
+     1/(Math.sqrt(2)),  1/(Math.sqrt(2)),  0.0,
+     1/(Math.sqrt(2)),  1/(Math.sqrt(2)),  0.0,
+     1/(Math.sqrt(2)),  1/(Math.sqrt(2)),  0.0,
+
+     1/(Math.sqrt(2)),  -1/(Math.sqrt(2)),  0.0,
+     1/(Math.sqrt(2)),  -1/(Math.sqrt(2)),  0.0,
+     1/(Math.sqrt(2)),  -1/(Math.sqrt(2)),  0.0,
+     1/(Math.sqrt(2)),  -1/(Math.sqrt(2)),  0.0,
+
+
+
+     
+     1.0,  0.0,  0.0,
+     1.0,  0.0,  0.0,
+     1.0,  0.0,  0.0,
+     1.0,  0.0,  0.0,
+
+     -1.0, 0.0,  0.0,
+     -1.0, 0.0,  0.0,
+     -1.0, 0.0,  0.0,
+     -1.0, 0.0,  0.0,
+
+     
+
+     
+     
+
+   
+  ];
+
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals),
+                gl.STATIC_DRAW);
+
     return {
       position: positionBuffer,
       color: colorBuffer,
       indices: indexBuffer,
+      normal: normalBuffer,
       texture: textureCoordBuffer,
     };
 }
@@ -208,6 +272,9 @@ function drawScene(gl,programInfo, buffers, deltaTime, texture) {
       // console.log(a);
       // Tell WebGL how to pull out the positions from the position
       // buffer into the vertexPosition attribute
+        const normalMatrix = mat4.create();
+        mat4.invert(normalMatrix, modelViewMatrix);
+        mat4.transpose(normalMatrix, normalMatrix);
        gl.useProgram(programInfo.program);
   
       // Set the shader uniforms
@@ -282,6 +349,32 @@ function drawScene(gl,programInfo, buffers, deltaTime, texture) {
 
         // Tell the shader we bound the texture to texture unit 0
         gl.uniform1i(programInfo.uniformLocations.sampler, 0); 
+
+         // Tell WebGL how to pull out the normals from
+  // the normal buffer into the vertexNormal attribute.
+  {
+    const numComponents = 3;
+    const type = gl.FLOAT;
+    const normalize = false;
+    const stride = 0;
+    const offset = 0;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normal);
+    gl.vertexAttribPointer(
+        programInfo.attribLocations.vertexNormal,
+        numComponents,
+        type,
+        normalize,
+        stride,
+        offset);
+    gl.enableVertexAttribArray(
+        programInfo.attribLocations.vertexNormal);
+
+
+  }
+  gl.uniformMatrix4fv(
+      programInfo.uniformLocations.normalMatrix,
+      false,
+      normalMatrix);
         
       {
         const vertexCount = 48;
